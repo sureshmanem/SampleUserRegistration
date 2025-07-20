@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
         body { padding: 20px; }
-        .container { max-width: 600px; }
+        .container { max-width: 720px; }
         .error { color: #d32f2f; margin-top: 1rem; }
+        .grid { grid-template-columns: 1fr 1fr; }
     </style>
 </head>
 <body>
@@ -19,14 +20,49 @@
                 <h3>Enter your details to create a new record.</h3>
             </hgroup>
             <form action="/register" method="post">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" name="fullName" required>
+                <!-- Grid for side-by-side fields -->
+                <div class="grid">
+                    <div>
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
+                    <div>
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div>
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" name="mobile" required>
+                    </div>
+                    <div>
+                        <label for="date_of_birth">Date of Birth</label>
+                        <input type="date" id="date_of_birth" name="date_of_birth">
+                    </div>
+                </div>
+                <div class="grid">
+                    <div>
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="" disabled selected>Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="zip_code">ZIP Code</label>
+                        <input type="text" id="zip_code" name="zip_code">
+                    </div>
+                </div>
                 
-                <label for="mobile">Mobile Number</label>
-                <input type="tel" id="mobile" name="mobile" required>
-
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" required>
+                <label for="address">Address</label>
+                <textarea id="address" name="address" rows="3"></textarea>
+                
+                <label for="additional_comments">Additional Comments</label>
+                <textarea id="additional_comments" name="additional_comments" rows="3"></textarea>
                 
                 <button type="submit">Register & Generate ID</button>
             </form>

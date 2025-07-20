@@ -7,10 +7,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <style>
         body { padding: 20px; }
-        .container { max-width: 600px; }
+        .container { max-width: 720px; }
         .user-id { background-color: #f1f1f1; padding: 0.2rem 0.5rem; border-radius: 4px; font-family: monospace; }
         .success { color: #2e7d32; }
         .error { color: #d32f2f; }
+        .record-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem 2rem;
+            text-align: left;
+        }
+        .record-grid p { margin-bottom: 0.5rem; }
+        .full-width { grid-column: 1 / -1; }
     </style>
 </head>
 <body>
@@ -25,15 +33,22 @@
                     <h2>✅ Record Found</h2>
                     <h3>Details for User ID: <span class="user-id">{{ user_id }}</span></h3>
                 </hgroup>
-                <p><strong>Full Name:</strong> {{ user.fullName }}</p>
-                <p><strong>Mobile:</strong> {{ user.mobile }}</p>
-                <p><strong>Email:</strong> {{ user.email }}</p>
+                <div class="record-grid">
+                    <p><strong>Full Name:</strong><br>{{ user.fullName }}</p>
+                    <p><strong>Email:</strong><br>{{ user.email }}</p>
+                    <p><strong>Mobile:</strong><br>{{ user.mobile }}</p>
+                    <p><strong>Date of Birth:</strong><br>{{ user.date_of_birth }}</p>
+                    <p><strong>Gender:</strong><br>{{ user.gender }}</p>
+                    <p><strong>ZIP Code:</strong><br>{{ user.zip_code }}</p>
+                    <p class="full-width"><strong>Address:</strong><br>{{ user.address }}</p>
+                    <p class="full-width"><strong>Additional Comments:</strong><br>{{ user.additional_comments }}</p>
+                </div>
             {% else %}
                 <h2 class="error">❌ Record Not Found</h2>
                 <p>No user exists with the ID: <span class="user-id">{{ user_id }}</span></p>
             {% endif %}
             
-            <a href="{{ url_for('index') }}" role="button" class="contrast">Back to Home</a>
+            <a href="{{ url_for('index') }}" role="button" class="contrast" style="margin-top: 2rem;">Back to Home</a>
         </article>
     </main>
 </body>

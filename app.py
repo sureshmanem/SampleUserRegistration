@@ -10,7 +10,7 @@ app = Flask(__name__)
 # IMPORTANT: Replace these with your actual PostgreSQL credentials
 app.config['DATABASE'] = {
     'dbname': 'userdb',
-    'user': 'lallu', # Your PostgreSQL username (often 'postgres' by default)
+    'user': 'lallu', # Your PostgreSQL username (e.g., 'johnappleseed')
     'password': '',      # Your PostgreSQL password (leave empty if none)
     'host': 'localhost',
     'port': '5432'
@@ -67,42 +67,49 @@ def index():
 @app.route('/register', methods=['POST'])
 def register():
     """Handles new user registration."""
-    db = None # FIX 1: Initialize db to None
+    db = None
     try:
-        # Get data from the form
+        # Get all data from the form
         full_name = request.form['fullName']
         mobile = request.form['mobile']
         email = request.form['email']
+        gender = request.form['gender']
+        # Handle empty date string
+        date_of_birth = request.form['date_of_birth'] if request.form['date_of_birth'] else None
+        address = request.form['address']
+        zip_code = request.form['zip_code']
+        additional_comments = request.form['additional_comments']
 
-        # Generate unique ID and save to database
+        # Generate unique ID
         user_id = generate_unique_id()
         
         db = get_db()
         cursor = db.cursor()
         
-        # SQL statement to insert a new record
-        sql = "INSERT INTO users (id, full_name, mobile, email) VALUES (%s, %s, %s, %s);"
-        cursor.execute(sql, (user_id, full_name, mobile, email))
+        # SQL statement to insert a new record with all fields
+        sql = """
+            INSERT INTO users (id, full_name, mobile, email, gender, date_of_birth, address, zip_code, additional_comments) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+        """
+        params = (user_id, full_name, mobile, email, gender, date_of_birth, address, zip_code, additional_comments)
+        cursor.execute(sql, params)
         
-        db.commit() # Commit the transaction to make the changes permanent
+        db.commit()
         cursor.close()
         
-        # Redirect to a page showing the new user's record
         return redirect(url_for('get_user_by_id', user_id=user_id, success=True))
 
     except psycopg2.Error as e:
-        # Handle potential database errors (e.g., duplicate email)
-        if db: # FIX 2: Only rollback if the connection was successful
-            db.rollback() 
+        if db:
+            db.rollback()
         error_message = f"Database error: {e}"
         return render_template('index.html', registration_error=error_message)
-    
+
 @app.route('/retrieve', methods=['POST'])
 def retrieve():
     """Handles the retrieval form submission by redirecting to the correct URL."""
     user_id = request.form['userId']
     return redirect(url_for('get_user_by_id', user_id=user_id))
-
 
 @app.route('/user/<string:user_id>')
 def get_user_by_id(user_id):
@@ -110,20 +117,28 @@ def get_user_by_id(user_id):
     db = get_db()
     cursor = db.cursor()
     
-    # Fetch user data by ID
-    cursor.execute("SELECT full_name, mobile, email FROM users WHERE id = %s;", (user_id,))
+    # Fetch all user data by ID
+    cursor.execute("SELECT full_name, mobile, email, gender, date_of_birth, address, zip_code, additional_comments FROM users WHERE id = %s;", (user_id,))
     user_record = cursor.fetchone()
     cursor.close()
     
     user = None
     if user_record:
+        # Format date for display if it exists
+        dob = user_record[4]
+        formatted_dob = dob.strftime('%B %d, %Y') if dob else 'N/A'
+
         user = {
             'fullName': user_record[0],
             'mobile': user_record[1],
-            'email': user_record[2]
+            'email': user_record[2],
+            'gender': user_record[3] or 'N/A',
+            'date_of_birth': formatted_dob,
+            'address': user_record[5] or 'N/A',
+            'zip_code': user_record[6] or 'N/A',
+            'additional_comments': user_record[7] or 'N/A'
         }
         
-    # Check if this is a redirect from a successful registration
     success_message = "User registered successfully!" if request.args.get('success') else None
     
     return render_template('user_record.html', user=user, user_id=user_id, success_message=success_message)
